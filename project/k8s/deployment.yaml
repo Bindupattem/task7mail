@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hardwork-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hardwork
+  template:
+    metadata:
+      labels:
+        app: hardwork
+    spec:
+      containers:
+      - name: hardwork-container
+        image: bindusravya/hardwork:latest
+        ports:
+        - containerPort: 80

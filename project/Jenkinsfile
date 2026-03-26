@@ -4,7 +4,7 @@ pipeline {
     environment {
         // Docker Hub credentials stored in Jenkins credentials (username/password)
         DOCKER_HUB_CREDENTIALS = 'docker-hub-cred-id' // Replace with your Jenkins credentials ID
-        DOCKER_IMAGE = 'bindusravya/task7:latest' // Replace with your Docker Hub username
+        DOCKER_IMAGE = 'docker build -t bindusravya/task7:latest project/'// Replace with your Docker Hub username
         RECIPIENT = 'sravyapattem371@gmail.com' // Your email
     }
 

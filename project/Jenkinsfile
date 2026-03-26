@@ -1,6 +1,13 @@
 pipeline {
     agent any
 
+    environment {
+        // Docker Hub credentials stored in Jenkins credentials (username/password)
+        DOCKER_HUB_CREDENTIALS = 'docker-hub-cred-id' // Replace with your Jenkins credentials ID
+        DOCKER_IMAGE = 'bindusravya/task7:latest' // Replace with your Docker Hub username
+        RECIPIENT = 'sravyapattem371@gmail.com' // Your email
+    }
+
     stages {
 
         stage('Checkout Code') {
@@ -9,7 +16,7 @@ pipeline {
                 echo 'Code checkout successful'
                 script {
                     try {
-                        mail to: 'sravyapattem371@gmail.com',
+                        mail to: "${RECIPIENT}",
                              subject: 'Checkout Success',
                              body: 'Code pulled from GitHub successfully'
                     } catch (Exception e) {
@@ -24,7 +31,7 @@ pipeline {
                 echo 'Build Stage Successful'
                 script {
                     try {
-                        mail to: 'sravyapattem371@gmail.com',
+                        mail to: "${RECIPIENT}",
                              subject: 'Build Success',
                              body: 'Build stage completed successfully'
                     } catch (Exception e) {
@@ -39,7 +46,7 @@ pipeline {
                 echo 'Test Stage Successful'
                 script {
                     try {
-                        mail to: 'sravyapattem371@gmail.com',
+                        mail to: "${RECIPIENT}",
                              subject: 'Test Success',
                              body: 'Test stage completed successfully'
                     } catch (Exception e) {
@@ -51,12 +58,12 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t task7 .'
+                sh 'docker build -t ${DOCKER_IMAGE} .'  // builds from repo root where Dockerfile is
                 script {
                     try {
-                        mail to: 'sravyapattem371@gmail.com',
+                        mail to: "${RECIPIENT}",
                              subject: 'Docker Build Success',
-                             body: 'Docker image built successfully'
+                             body: "Docker image ${DOCKER_IMAGE} built successfully"
                     } catch (Exception e) {
                         echo "Mail failed"
                     }
@@ -66,12 +73,17 @@ pipeline {
 
         stage('Docker Push') {
             steps {
-                echo 'Docker Push Successful (add docker login if needed)'
                 script {
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", 
+                                                      usernameVariable: 'DOCKER_USER', 
+                                                      passwordVariable: 'DOCKER_PASS')]) {
+                        sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                        sh 'docker push ${DOCKER_IMAGE}'
+                    }
                     try {
-                        mail to: 'sravyapattem371@gmail.com',
+                        mail to: "${RECIPIENT}",
                              subject: 'Docker Push Success',
-                             body: 'Docker image pushed successfully'
+                             body: "Docker image ${DOCKER_IMAGE} pushed successfully"
                     } catch (Exception e) {
                         echo "Mail failed"
                     }
@@ -83,11 +95,11 @@ pipeline {
             steps {
                 sh '''
                 docker rm -f task7 || true
-                docker run -d -p 8990:8080 --name task7 task7
+                docker run -d -p 8990:80 --name task7 ${DOCKER_IMAGE}
                 '''
                 script {
                     try {
-                        mail to: 'sravyapattem371@gmail.com',
+                        mail to: "${RECIPIENT}",
                              subject: 'Deployment Success',
                              body: 'Application deployed successfully'
                     } catch (Exception e) {
@@ -96,15 +108,33 @@ pipeline {
                 }
             }
         }
+
+        stage('Check Node') {
+            steps {
+                sh 'echo Running on node: $NODE_NAME'
+            }
+        }
     }
 
     post {
         always {
             script {
                 try {
-                    mail to: 'sravyapattem371@gmail.com',
+                    mail to: "${RECIPIENT}",
                          subject: "Pipeline Completed - ${currentBuild.currentResult}",
                          body: "Your pipeline #${env.BUILD_NUMBER} finished with status: ${currentBuild.currentResult}."
+                } catch (Exception e) {
+                    echo "Mail failed"
+                }
+            }
+        }
+
+        failure {
+            script {
+                try {
+                    mail to: "${RECIPIENT}",
+                         subject: "Pipeline Failed",
+                         body: "Something failed in pipeline #${env.BUILD_NUMBER}"
                 } catch (Exception e) {
                     echo "Mail failed"
                 }

@@ -10,8 +10,8 @@ pipeline {
                 script {
                     try {
                         mail to: 'sravyapattem371@gmail.com',
-                             subject: "Checkout Success",
-                             body: "Code pulled from GitHub successfully"
+                             subject: 'Checkout Success',
+                             body: 'Code pulled from GitHub successfully'
                     } catch (Exception e) {
                         echo "Mail failed"
                     }
@@ -25,8 +25,8 @@ pipeline {
                 script {
                     try {
                         mail to: 'sravyapattem371@gmail.com',
-                             subject: "Build Success",
-                             body: "Build stage completed successfully"
+                             subject: 'Build Success',
+                             body: 'Build stage completed successfully'
                     } catch (Exception e) {
                         echo "Mail failed"
                     }
@@ -40,8 +40,8 @@ pipeline {
                 script {
                     try {
                         mail to: 'sravyapattem371@gmail.com',
-                             subject: "Test Success",
-                             body: "Test stage completed successfully"
+                             subject: 'Test Success',
+                             body: 'Test stage completed successfully'
                     } catch (Exception e) {
                         echo "Mail failed"
                     }
@@ -55,8 +55,8 @@ pipeline {
                 script {
                     try {
                         mail to: 'sravyapattem371@gmail.com',
-                             subject: "Docker Build Success",
-                             body: "Docker image built successfully"
+                             subject: 'Docker Build Success',
+                             body: 'Docker image built successfully'
                     } catch (Exception e) {
                         echo "Mail failed"
                     }
@@ -70,8 +70,8 @@ pipeline {
                 script {
                     try {
                         mail to: 'sravyapattem371@gmail.com',
-                             subject: "Docker Push Success",
-                             body: "Docker image pushed successfully"
+                             subject: 'Docker Push Success',
+                             body: 'Docker image pushed successfully'
                     } catch (Exception e) {
                         echo "Mail failed"
                     }
@@ -87,9 +87,9 @@ pipeline {
                 '''
                 script {
                     try {
-                        mail to: 'sravyapattem371@gmail.com,
-                             subject: "Deployment Success",
-                             body: "Application deployed successfully"
+                        mail to: 'sravyapattem371@gmail.com',
+                             subject: 'Deployment Success',
+                             body: 'Application deployed successfully'
                     } catch (Exception e) {
                         echo "Mail failed"
                     }
@@ -99,12 +99,12 @@ pipeline {
     }
 
     post {
-        failure {
+        always {
             script {
                 try {
                     mail to: 'sravyapattem371@gmail.com',
-                         subject: "Pipeline Failed",
-                         body: "Something failed in pipeline"
+                         subject: "Pipeline Completed - ${currentBuild.currentResult}",
+                         body: "Your pipeline #${env.BUILD_NUMBER} finished with status: ${currentBuild.currentResult}."
                 } catch (Exception e) {
                     echo "Mail failed"
                 }
